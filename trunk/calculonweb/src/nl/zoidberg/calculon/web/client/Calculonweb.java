@@ -18,19 +18,8 @@ public class Calculonweb implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		
 		RootPanel.get().add(boardDisplay = new BoardDisplay(this));
-		
-		AsyncCallback<BoardInfo> callback = new AsyncCallback<BoardInfo>() {
-			public void onSuccess(BoardInfo result) {
-				boardDisplay.setBoardInfo(result);
-			}
-
-			public void onFailure(Throwable caught) {
-				System.out.println("Help!");
-			}
-		};
-		engineService.getCurrentFEN(callback);
+		resetGame();
 	}
 
 	public void moveSelected(String move) {
@@ -48,7 +37,7 @@ public class Calculonweb implements EntryPoint {
 		engineService.getMoveUpdate(move, callback);
 	}
 
-	public void getComputerResponse() {
+	private void getComputerResponse() {
 		AsyncCallback<BoardInfo> callback = new AsyncCallback<BoardInfo>() {
 			public void onSuccess(BoardInfo result) {
 				boardDisplay.setBoardInfo(result);
@@ -60,5 +49,19 @@ public class Calculonweb implements EntryPoint {
 			}
 		};
 		engineService.getResponseMove(callback);
+	}
+	
+	public void resetGame() {
+		AsyncCallback<BoardInfo> callback = new AsyncCallback<BoardInfo>() {
+			public void onSuccess(BoardInfo result) {
+				boardDisplay.setBoardInfo(result);
+				boardDisplay.setStyleName("normal");
+			}
+
+			public void onFailure(Throwable caught) {
+				System.out.println("Help!");
+			}
+		};
+		engineService.resetGame(callback);
 	}
 }

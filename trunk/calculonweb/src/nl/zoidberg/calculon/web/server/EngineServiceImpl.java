@@ -20,14 +20,11 @@ public class EngineServiceImpl extends RemoteServiceServlet implements EngineSer
 	
 	private static final String ATTR_BOARD = "BOARD";
 
-	public BoardInfo getCurrentFEN() {
+	public BoardInfo resetGame() {
 		HttpServletRequest request = this.getThreadLocalRequest();
 		HttpSession session = request.getSession();
 		
-		if(session.getAttribute(ATTR_BOARD) == null) {
-			session.setAttribute(ATTR_BOARD, new Board().initialise());
-		}
-		
+		session.setAttribute(ATTR_BOARD, new Board().initialise());
 		BoardInfo boardInfo = new BoardInfo();
 		Board board = (Board) session.getAttribute(ATTR_BOARD);
 		boardInfo.setCurrentFEN(FENUtils.generate(board));
@@ -42,7 +39,7 @@ public class EngineServiceImpl extends RemoteServiceServlet implements EngineSer
 		HttpSession session = request.getSession();
 		Board board = (Board) session.getAttribute(ATTR_BOARD);
 		if(board == null) {
-			return getCurrentFEN();
+			return resetGame();
 		}
 
 		BoardInfo boardInfo = new BoardInfo();
@@ -59,7 +56,7 @@ public class EngineServiceImpl extends RemoteServiceServlet implements EngineSer
 		HttpSession session = request.getSession();
 		Board board = (Board) session.getAttribute(ATTR_BOARD);
 		if(board == null) {
-			return getCurrentFEN();
+			return resetGame();
 		}
 		BoardInfo boardInfo = new BoardInfo();
 		SearchNode node = new SearchNode(board);
