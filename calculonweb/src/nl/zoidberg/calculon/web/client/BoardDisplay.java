@@ -13,12 +13,13 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
 
 public class BoardDisplay extends Grid {
 	private static final String RANKS = "12345678";
 	private static final String FILES = "ABCDEFGH";
-	private BoardImageBundle imageBundle = (BoardImageBundle) GWT.create(IYT1BoardImageBundle.class);
+	
+	private final BoardImageBundle imageBundle = (BoardImageBundle) GWT.create(IYT1BoardImageBundle.class);
+	
 	private BoardInfo boardInfo;
 	private String selectedFrom;
 	private List<HandlerRegistration> targetHandlers = new ArrayList<HandlerRegistration>();
@@ -51,7 +52,7 @@ public class BoardDisplay extends Grid {
 			Label label = new Label(String.valueOf(flipped ? FILES.charAt(7-i) : FILES.charAt(i)));
 			setWidget(8, i+1, label);
 			label.setStyleName("sqLabel");
-			label = new Label(String.valueOf(flipped ? RANKS.charAt(7-i) : RANKS.charAt(i)));
+			label = new Label(String.valueOf(flipped ? RANKS.charAt(i) : RANKS.charAt(7-i)));
 			label.setStyleName("sqLabel");
 			setWidget(i, 0, label);
 		}
@@ -61,44 +62,55 @@ public class BoardDisplay extends Grid {
 	public void setBoardInfo(BoardInfo boardInfo) {
 		this.boardInfo = boardInfo;
 		selectedFrom = null;
-		for(HandlerRegistration reg: targetHandlers) {
-			reg.removeHandler();
-		}
-		targetHandlers.clear();
 		populateBoard();
 	}
 	
 	private void populateBoard() {
-		String fen = boardInfo.getCurrentFEN();
-		StringBuffer buf = new StringBuffer(fen.substring(0, fen.indexOf(" ")));
-		buf.append("/");
-		int rank = 0;
-		while(buf.length() > 0) {
-			String sRank = buf.substring(0, buf.indexOf("/"));
-			buf.delete(0, buf.indexOf("/") + 1);
-			int file = 0;
-			for(int i = 0; i < sRank.length(); i++) {
-				if(Character.isDigit(sRank.charAt(i))) {
-					for(int j = 0; j < (sRank.charAt(i) - '0'); j++) {
-						Widget w = (rank+file)%2 == 0 ? 
-								imageBundle.getEmptyLight().createImage() : imageBundle.getEmptyDark().createImage();
-						w.setStyleName("normalBorder");
-						this.setWidget(rank, file+1, w);
-						file++;
-					}
-				} else {
-					int color = (rank+file)%2;
-					Widget w = getPieceImage(sRank.charAt(i), color);
-					if(boardInfo.getPossibleMoves().get(getKey(file, 7-rank)) != null) {
-						((Image) w).addClickHandler(new FromClickHandler(getKey(file, 7-rank)));
-					}
-					w.setStyleName("normalBorder");
-					this.setWidget(flipped ? 7-rank : rank, file+1, w);
-					file++;
+		for(HandlerRegistration reg: targetHandlers) {
+			reg.removeHandler();
+		}
+		targetHandlers.clear();
+		
+		for(int rank = 0; rank < 8; rank++) {
+			for(int file = 0; file < 8; file++) {
+				char piece = boardInfo.getPieceAt(file, rank);
+				Image img = getPieceImage(piece, (rank+file)%2);
+				img.setStyleName("normalBorder");
+				this.setBoardImage(file, rank, img);
+				if(piece != ' ' && boardInfo.getPossibleMoves().get(getKey(file, rank)) != null) {
+					img.addClickHandler(new FromClickHandler(getKey(file, rank)));
 				}
 			}
-			rank++;
 		}
+	}
+	
+	/**
+	 * Takes care of mapping a file/rank co-ord to a grid co-ord, e.g. E4 -> (3,4).
+	 * 
+	 * @param file
+	 * @param rank
+	 * @param w
+	 */
+	private void setBoardImage(int file, int rank, Image w) {
+		int row = flipped ? rank : 7 - rank;
+		int col = file + 1;
+		
+		this.setWidget(row, col, w);
+	}
+	
+	private void setBoardImage(String square, Image w) {
+		this.setBoardImage(FILES.indexOf(square.charAt(0)), RANKS.indexOf(square.charAt(1)), w);
+	}
+
+	private Image getBoardImage(String coord) {
+		System.out.println("get: " + coord);
+		return getBoardImage(FILES.indexOf(coord.charAt(0)), RANKS.indexOf(coord.charAt(1)));
+	}
+	
+	private Image getBoardImage(int file, int rank) {
+		System.out.println("get: " + file + " " + rank + " " + flipped);
+		Image image = (Image) this.getWidget(flipped ? rank : 7 - rank, file + 1);
+		return image;
 	}
 	
 	private void deselect() {
@@ -107,7 +119,7 @@ public class BoardDisplay extends Grid {
 				reg.removeHandler();
 			}
 			targetHandlers.clear();
-			Image image = (Image) getWidget(7 - RANKS.indexOf(selectedFrom.charAt(1)), FILES.indexOf(selectedFrom.charAt(0)));
+			Image image = getBoardImage(selectedFrom);
 			image.setStyleName("normalBorder");
 			selectedFrom = null;
 		}
@@ -115,14 +127,66 @@ public class BoardDisplay extends Grid {
 	
 	private void select(String square) {
 		this.selectedFrom = square;
-		Image image = (Image) getWidget(7 - RANKS.indexOf(selectedFrom.charAt(1)), FILES.indexOf(selectedFrom.charAt(0)+1));
+		Image image = getBoardImage(selectedFrom);
 		image.setStyleName("selectedBorder");
 		List<String> targets = boardInfo.getPossibleMoves().get(square);
 		for(String target: targets) {
-			image = (Image) getWidget(7 - RANKS.indexOf(target.charAt(1)), FILES.indexOf(target.charAt(0)+1));
+			image = (Image) getBoardImage(target);
 			targetHandlers.add(image.addClickHandler(new ToClickHandler(target)));
 		}
 	}
+	
+	private void moveSelectedPiece(String target) {
+		int file = FILES.indexOf(selectedFrom.charAt(0));
+		int rank = RANKS.indexOf(selectedFrom.charAt(1));
+		Image img = (rank+file)%2 == 1 ? 
+				imageBundle.getEmptyLight().createImage() : imageBundle.getEmptyDark().createImage();
+		img.setStyleName("normalBorder");
+		this.setBoardImage(file, rank, img);
+		
+		char piece = boardInfo.getPieceAt(file, rank);
+		img = getPieceImage(piece, (FILES.indexOf(target.charAt(0)) + RANKS.indexOf(target.charAt(1))) % 2);
+		img.setStyleName("normalBorder");
+		this.setBoardImage(target, img);
+	}
+	
+	private String getKey(int file, int rank) {
+		return String.valueOf(FILES.charAt(file)) + String.valueOf(RANKS.charAt(rank));
+	}
+
+	private Image getPieceImage(char c, int color) {
+		switch(c) {
+		case ' ':
+			return color == 1 ? imageBundle.getEmptyLight().createImage() : imageBundle.getEmptyDark().createImage();
+		case 'p':
+			return color == 1 ? imageBundle.getBlackPawnLight().createImage() : imageBundle.getBlackPawnDark().createImage();
+		case 'r':
+			return color == 1 ? imageBundle.getBlackRookLight().createImage() : imageBundle.getBlackRookDark().createImage();
+		case 'n':
+			return color == 1 ? imageBundle.getBlackKnightLight().createImage() : imageBundle.getBlackKnightDark().createImage();
+		case 'b':
+			return color == 1 ? imageBundle.getBlackBishopLight().createImage() : imageBundle.getBlackBishopDark().createImage();
+		case 'q':
+			return color == 1 ? imageBundle.getBlackQueenLight().createImage() : imageBundle.getBlackQueenDark().createImage();
+		case 'k':
+			return color == 1 ? imageBundle.getBlackKingLight().createImage() : imageBundle.getBlackKingDark().createImage();
+		case 'P':
+			return color == 1 ? imageBundle.getWhitePawnLight().createImage() : imageBundle.getWhitePawnDark().createImage();
+		case 'R':
+			return color == 1 ? imageBundle.getWhiteRookLight().createImage() : imageBundle.getWhiteRookDark().createImage();
+		case 'N':
+			return color == 1 ? imageBundle.getWhiteKnightLight().createImage() : imageBundle.getWhiteKnightDark().createImage();
+		case 'B':
+			return color == 1 ? imageBundle.getWhiteBishopLight().createImage() : imageBundle.getWhiteBishopDark().createImage();
+		case 'Q':
+			return color == 1 ? imageBundle.getWhiteQueenLight().createImage() : imageBundle.getWhiteQueenDark().createImage();
+		case 'K':
+			return color == 1 ? imageBundle.getWhiteKingLight().createImage() : imageBundle.getWhiteKingDark().createImage();
+		}
+		return null;
+	}
+
+	/* ------------------------------------- Private Classes --------------------------------------- */
 	
 	private class ToClickHandler implements ClickHandler {
 		private String toSquare;
@@ -134,25 +198,6 @@ public class BoardDisplay extends Grid {
 		public void onClick(ClickEvent event) {
 			moveSelectedPiece(toSquare);
 			controller.moveSelected(selectedFrom + toSquare);
-		}
-	}
-	
-	private void moveSelectedPiece(String target) {
-		int file = FILES.indexOf(selectedFrom.charAt(0));
-		int rank = RANKS.indexOf(selectedFrom.charAt(1));
-		if( ! flipped) {
-			rank = 7 - rank;
-		}
-
-		Widget w = (rank+file)%2 == 0 ? 
-				imageBundle.getEmptyLight().createImage() : imageBundle.getEmptyDark().createImage();
-		w.setStyleName("normalBorder");
-		this.setWidget(rank, file+1, w);
-		
-		file = FILES.indexOf(target.charAt(0));
-		rank = RANKS.indexOf(target.charAt(1));
-		if( ! flipped) {
-			rank = 7 - rank;
 		}
 	}
 	
@@ -171,39 +216,5 @@ public class BoardDisplay extends Grid {
 				BoardDisplay.this.select(fromSquare);
 			}
 		}
-	}
-	
-	private String getKey(int file, int rank) {
-		return String.valueOf(FILES.charAt(file)) + String.valueOf(RANKS.charAt(rank));
-	}
-
-	private Widget getPieceImage(char c, int color) {
-		switch(c) {
-		case 'p':
-			return color == 0 ? imageBundle.getBlackPawnLight().createImage() : imageBundle.getBlackPawnDark().createImage();
-		case 'r':
-			return color == 0 ? imageBundle.getBlackRookLight().createImage() : imageBundle.getBlackRookDark().createImage();
-		case 'n':
-			return color == 0 ? imageBundle.getBlackKnightLight().createImage() : imageBundle.getBlackKnightDark().createImage();
-		case 'b':
-			return color == 0 ? imageBundle.getBlackBishopLight().createImage() : imageBundle.getBlackBishopDark().createImage();
-		case 'q':
-			return color == 0 ? imageBundle.getBlackQueenLight().createImage() : imageBundle.getBlackQueenDark().createImage();
-		case 'k':
-			return color == 0 ? imageBundle.getBlackKingLight().createImage() : imageBundle.getBlackKingDark().createImage();
-		case 'P':
-			return color == 0 ? imageBundle.getWhitePawnLight().createImage() : imageBundle.getWhitePawnDark().createImage();
-		case 'R':
-			return color == 0 ? imageBundle.getWhiteRookLight().createImage() : imageBundle.getWhiteRookDark().createImage();
-		case 'N':
-			return color == 0 ? imageBundle.getWhiteKnightLight().createImage() : imageBundle.getWhiteKnightDark().createImage();
-		case 'B':
-			return color == 0 ? imageBundle.getWhiteBishopLight().createImage() : imageBundle.getWhiteBishopDark().createImage();
-		case 'Q':
-			return color == 0 ? imageBundle.getWhiteQueenLight().createImage() : imageBundle.getWhiteQueenDark().createImage();
-		case 'K':
-			return color == 0 ? imageBundle.getWhiteKingLight().createImage() : imageBundle.getWhiteKingDark().createImage();
-		}
-		return null;
 	}
 }
