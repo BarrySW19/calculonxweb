@@ -9,7 +9,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  */
 @RemoteServiceRelativePath("engine")
 public interface EngineService extends RemoteService {
-	BoardInfo getCurrentFEN();
+	BoardInfo resetGame();
 	BoardInfo getMoveUpdate(String move);
 	BoardInfo getResponseMove();
 }
