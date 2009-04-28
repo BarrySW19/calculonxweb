@@ -12,7 +12,42 @@ public class BoardInfo implements Serializable {
 	
 	private String currentFEN;
 	private Map<String, List<String>> possibleMoves;
+	private byte[] squares;
+	private Map<String, Short> history;
+	private short flags;
 	
+//	public String getStateInfo() {
+//		return stateInfo;
+//	}
+//
+//	public void setStateInfo(String stateInfo) {
+//		this.stateInfo = stateInfo;
+//	}
+
+	public short getFlags() {
+		return flags;
+	}
+
+	public void setFlags(short flags) {
+		this.flags = flags;
+	}
+
+	public byte[] getSquares() {
+		return squares;
+	}
+
+	public void setSquares(byte[] squares) {
+		this.squares = squares;
+	}
+
+	public Map<String, Short> getHistory() {
+		return history;
+	}
+
+	public void setHistory(Map<String, Short> history) {
+		this.history = history;
+	}
+
 	public char getPieceAt(int file, int rank) {
 		return board.get(rank).charAt(file); 
 	}

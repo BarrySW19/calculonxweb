@@ -45,10 +45,19 @@ public class BoardDisplay extends Grid {
 				generateLabels();
 			}
 		});
+
+		button = new Button("Move");
+		button.setStyleName("sqLabel");
+		setWidget(3, 9, button);
+		button.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				BoardDisplay.this.controller.getComputerResponse();
+			}
+		});
 		
 		button = new Button("Reset");
 		button.setStyleName("sqLabel");
-		setWidget(3, 9, button);
+		setWidget(5, 9, button);
 		button.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				BoardDisplay.this.controller.resetGame();
