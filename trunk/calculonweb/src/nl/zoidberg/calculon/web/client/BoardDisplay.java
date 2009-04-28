@@ -6,6 +6,7 @@ import java.util.List;
 import nl.zoidberg.calculon.web.client.images.iyt1.IYT1BoardImageBundle;
 import nl.zoidberg.calculon.web.client.images.iyt2.IYT2BoardImageBundle;
 import nl.zoidberg.calculon.web.client.images.iyt3.IYT3BoardImageBundle;
+import nl.zoidberg.calculon.web.client.images.wiki1.Wiki1BoardImageBundle;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -74,6 +75,7 @@ public class BoardDisplay extends Grid {
 		style.addItem("Merida Green", "1");
 		style.addItem("Merida Purple", "2");
 		style.addItem("Harlequin Brown", "3");
+		style.addItem("Wiki Style 1", "4");
 		setWidget(5, 9, style);
 		style.addChangeHandler(new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
@@ -104,6 +106,9 @@ public class BoardDisplay extends Grid {
 			break;
 		case 3:
 			imageBundle = (BoardImageBundle) GWT.create(IYT3BoardImageBundle.class);
+			break;
+		case 4:
+			imageBundle = (BoardImageBundle) GWT.create(Wiki1BoardImageBundle.class);
 			break;
 		}
 		populateBoard();
