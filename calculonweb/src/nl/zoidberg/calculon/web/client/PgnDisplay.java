@@ -52,7 +52,7 @@ public class PgnDisplay extends FlexTable {
 	}
 
 	public void setResult(String result) {
-		if(nextCol == 1) {
+		if(nextCol != 0) {
 			nextRow++;
 		}
 		this.getFlexCellFormatter().setColSpan(nextRow, 0, 6);
