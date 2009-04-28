@@ -15,6 +15,8 @@ public class BoardInfo implements Serializable {
 	private byte[] squares;
 	private Map<String, Short> history;
 	private short flags;
+	private String lastMove;
+	private String result;
 	
 //	public String getStateInfo() {
 //		return stateInfo;
@@ -23,6 +25,22 @@ public class BoardInfo implements Serializable {
 //	public void setStateInfo(String stateInfo) {
 //		this.stateInfo = stateInfo;
 //	}
+
+	public String getLastMove() {
+		return lastMove;
+	}
+
+	public void setLastMove(String lastMove) {
+		this.lastMove = lastMove;
+	}
+
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
 
 	public short getFlags() {
 		return flags;
