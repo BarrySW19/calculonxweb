@@ -4,6 +4,7 @@ import nl.zoidberg.calculon.engine.MoveGenerator;
 import nl.zoidberg.calculon.engine.SearchNode;
 import nl.zoidberg.calculon.model.Board;
 import nl.zoidberg.calculon.notation.FENUtils;
+import nl.zoidberg.calculon.notation.PGNUtils;
 import nl.zoidberg.calculon.web.client.BoardInfo;
 import nl.zoidberg.calculon.web.client.EngineService;
 
@@ -16,7 +17,9 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class EngineServiceImpl extends RemoteServiceServlet implements EngineService {
 	
 	public BoardInfo resetGame() {
-		return getBoardInfo(new Board().initialise());
+		Board board = new Board().initialise();
+//		FENUtils.loadPosition("7k/R7/8/8/8/8/8/1R5K w - - 0 1", board);
+		return getBoardInfo(board);
 	}
 
 	public BoardInfo getMoveUpdate(String move, BoardInfo currentBoard) {
@@ -25,9 +28,12 @@ public class EngineServiceImpl extends RemoteServiceServlet implements EngineSer
 		}
 
 		Board board = new Board(currentBoard.getSquares(), currentBoard.getFlags(), currentBoard.getHistory());
+		String pgn = PGNUtils.translateMove(board, move);
 		board.applyMove(move);
 
-		return getBoardInfo(board);
+		BoardInfo rv = getBoardInfo(board);
+		rv.setLastMove(pgn);
+		return rv;
 	}
 
 	public BoardInfo getResponseMove(BoardInfo currentBoard) {
@@ -37,9 +43,14 @@ public class EngineServiceImpl extends RemoteServiceServlet implements EngineSer
 		
 		Board board = new Board(currentBoard.getSquares(), currentBoard.getFlags(), currentBoard.getHistory());
 		SearchNode node = new SearchNode(board);
-		board.applyMove(node.getPreferredMove());
+		String move = node.getPreferredMove();
+		String pgn = PGNUtils.translateMove(board, move);
+		
+		board.applyMove(move);
 
-		return getBoardInfo(board);
+		BoardInfo rv = getBoardInfo(board);
+		rv.setLastMove(pgn);
+		return rv;
 	}
 	
 	private static BoardInfo getBoardInfo(Board board) {
@@ -49,6 +60,7 @@ public class EngineServiceImpl extends RemoteServiceServlet implements EngineSer
 		boardInfo.setHistory(board.getHistory());
 		boardInfo.setSquares(board.getSquares());
 		boardInfo.setFlags(board.getFlags());
+		boardInfo.setResult(board.getResult());
 		return boardInfo;
 	}
 }

@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.zoidberg.calculon.web.client.images.iyt1.IYT1BoardImageBundle;
+import nl.zoidberg.calculon.web.client.images.iyt2.IYT2BoardImageBundle;
+import nl.zoidberg.calculon.web.client.images.iyt3.IYT3BoardImageBundle;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -13,12 +17,13 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
 
 public class BoardDisplay extends Grid {
 	private static final String RANKS = "12345678";
 	private static final String FILES = "ABCDEFGH";
 	
-	private final BoardImageBundle imageBundle = (BoardImageBundle) GWT.create(IYT1BoardImageBundle.class);
+	private BoardImageBundle imageBundle = (BoardImageBundle) GWT.create(IYT1BoardImageBundle.class);
 	
 	private BoardInfo boardInfo;
 	private String selectedFrom;
@@ -48,7 +53,7 @@ public class BoardDisplay extends Grid {
 
 		button = new Button("Move");
 		button.setStyleName("sqLabel");
-		setWidget(3, 9, button);
+		setWidget(2, 9, button);
 		button.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				BoardDisplay.this.controller.getComputerResponse();
@@ -57,10 +62,23 @@ public class BoardDisplay extends Grid {
 		
 		button = new Button("Reset");
 		button.setStyleName("sqLabel");
-		setWidget(5, 9, button);
+		setWidget(3, 9, button);
 		button.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				BoardDisplay.this.controller.resetGame();
+			}
+		});
+		
+		ListBox style = new ListBox();
+		style.setStyleName("margin10");
+		style.addItem("Merida Green", "1");
+		style.addItem("Merida Purple", "2");
+		style.addItem("Harlequin Brown", "3");
+		setWidget(5, 9, style);
+		style.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
+				ListBox lb = (ListBox) event.getSource();
+				setImageBundle(lb.getValue(lb.getSelectedIndex()));
 			}
 		});
 	}
@@ -74,9 +92,23 @@ public class BoardDisplay extends Grid {
 			label.setStyleName("sqLabel");
 			setWidget(i, 0, label);
 		}
-		
 	}
 	
+	public void setImageBundle(String id) {
+		switch(Integer.parseInt(id)) {
+		case 1:
+			imageBundle = (BoardImageBundle) GWT.create(IYT1BoardImageBundle.class);
+			break;
+		case 2:
+			imageBundle = (BoardImageBundle) GWT.create(IYT2BoardImageBundle.class);
+			break;
+		case 3:
+			imageBundle = (BoardImageBundle) GWT.create(IYT3BoardImageBundle.class);
+			break;
+		}
+		populateBoard();
+	}
+
 	public void setBoardInfo(BoardInfo boardInfo) {
 		this.boardInfo = boardInfo;
 		selectedFrom = null;
@@ -121,12 +153,10 @@ public class BoardDisplay extends Grid {
 	}
 
 	private Image getBoardImage(String coord) {
-		System.out.println("get: " + coord);
 		return getBoardImage(FILES.indexOf(coord.charAt(0)), RANKS.indexOf(coord.charAt(1)));
 	}
 	
 	private Image getBoardImage(int file, int rank) {
-		System.out.println("get: " + file + " " + rank + " " + flipped);
 		Image image = (Image) this.getWidget(flipped ? rank : 7 - rank, file + 1);
 		return image;
 	}

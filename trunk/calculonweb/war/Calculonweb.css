@@ -23,12 +23,22 @@ h1 {
   color: red;
 }
 
+.centered {
+	text-align: center;
+}
+
 .normalBorder {
 	border: 1px solid white;
 }
 
 .selectedBorder {
 	border: 1px solid red;
+}
+
+.pgnDisplay {
+	vertical-align: top;
+	min-width: 300px;
+	
 }
 
 .waiting {
@@ -41,6 +51,11 @@ h1 {
 
 .sqLabel {
 	text-align: center;
+	margin-right: 10px;
+	margin-left: 10px;
+}
+
+.margin10 {
 	margin-right: 10px;
 	margin-left: 10px;
 }
