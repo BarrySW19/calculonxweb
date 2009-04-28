@@ -29,6 +29,7 @@ public class BoardDisplay extends Grid {
 	private BoardInfo boardInfo;
 	private String selectedFrom;
 	private List<HandlerRegistration> targetHandlers = new ArrayList<HandlerRegistration>();
+	private List<HandlerRegistration> sourceHandlers = new ArrayList<HandlerRegistration>();
 	private Calculonweb controller;
 	private boolean flipped = false;
 
@@ -121,19 +122,18 @@ public class BoardDisplay extends Grid {
 	}
 	
 	private void populateBoard() {
-		for(HandlerRegistration reg: targetHandlers) {
-			reg.removeHandler();
-		}
-		targetHandlers.clear();
+		clearHandlers(targetHandlers);
+		clearHandlers(sourceHandlers);
 		
 		for(int rank = 0; rank < 8; rank++) {
 			for(int file = 0; file < 8; file++) {
 				char piece = boardInfo.getPieceAt(file, rank);
 				Image img = getPieceImage(piece, (rank+file)%2);
+				img = this.setBoardImage(file, rank, img);
 				img.setStyleName("normalBorder");
-				this.setBoardImage(file, rank, img);
 				if(piece != ' ' && boardInfo.getPossibleMoves().get(getKey(file, rank)) != null) {
-					img.addClickHandler(new FromClickHandler(getKey(file, rank)));
+					ClickHandler clickHandler = new FromClickHandler(getKey(file, rank));
+					sourceHandlers.add(img.addClickHandler(clickHandler));
 				}
 			}
 		}
@@ -146,7 +146,7 @@ public class BoardDisplay extends Grid {
 	 * @param rank
 	 * @param w
 	 */
-	private void setBoardImage(int file, int rank, Image w) {
+	private Image setBoardImage(int file, int rank, Image w) {
 		int row = flipped ? rank : 7 - rank;
 		int col = file + 1;
 		
@@ -154,12 +154,14 @@ public class BoardDisplay extends Grid {
 		if(img != null) {
 			img.setUrlAndVisibleRect(w.getUrl(), w.getOriginLeft(), w.getOriginTop(), w.getWidth(), w.getHeight());
 		} else {
+			img = w;
 			this.setWidget(row, col, w);
 		}
+		return img;
 	}
 	
-	private void setBoardImage(String square, Image w) {
-		this.setBoardImage(FILES.indexOf(square.charAt(0)), RANKS.indexOf(square.charAt(1)), w);
+	private Image setBoardImage(String square, Image w) {
+		return this.setBoardImage(FILES.indexOf(square.charAt(0)), RANKS.indexOf(square.charAt(1)), w);
 	}
 
 	private Image getBoardImage(String coord) {
@@ -173,10 +175,7 @@ public class BoardDisplay extends Grid {
 	
 	private void deselect() {
 		if(selectedFrom != null) {
-			for(HandlerRegistration reg: targetHandlers) {
-				reg.removeHandler();
-			}
-			targetHandlers.clear();
+			clearHandlers(targetHandlers);
 			Image image = getBoardImage(selectedFrom);
 			image.setStyleName("normalBorder");
 			selectedFrom = null;
@@ -195,17 +194,27 @@ public class BoardDisplay extends Grid {
 	}
 	
 	private void moveSelectedPiece(String target) {
+		clearHandlers(targetHandlers);
+		clearHandlers(sourceHandlers);
+		
 		int file = FILES.indexOf(selectedFrom.charAt(0));
 		int rank = RANKS.indexOf(selectedFrom.charAt(1));
 		Image img = (rank+file)%2 == 1 ? 
 				imageBundle.getEmptyLight().createImage() : imageBundle.getEmptyDark().createImage();
+		img = this.setBoardImage(file, rank, img);
 		img.setStyleName("normalBorder");
-		this.setBoardImage(file, rank, img);
 		
 		char piece = boardInfo.getPieceAt(file, rank);
 		img = getPieceImage(piece, (FILES.indexOf(target.charAt(0)) + RANKS.indexOf(target.charAt(1))) % 2);
+		img = this.setBoardImage(target, img);
 		img.setStyleName("normalBorder");
-		this.setBoardImage(target, img);
+	}
+	
+	private void clearHandlers(List<HandlerRegistration> handlers) {
+		for(HandlerRegistration reg: handlers) {
+			reg.removeHandler();
+		}
+		handlers.clear();
 	}
 	
 	private String getKey(int file, int rank) {

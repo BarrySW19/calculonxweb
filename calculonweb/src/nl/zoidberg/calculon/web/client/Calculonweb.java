@@ -43,7 +43,7 @@ public class Calculonweb implements EntryPoint {
 		Label inst = new Label(
 				"Hello, I'm Calculon, and I'm here to play chess. I might be playing on FICS or ICS too. "
 				+ "Playing is simple - just click on the piece you want to move and then click on the "
-				+ "square to move to. To ask me to move click the 'Move' button. To play as black just "
+				+ "square to move to. To ask me to move on your go click the 'Move' button. To play as black just "
 				+ "start by clicking 'Move' then 'Flip'. You can also reset the game at any time."
 				);
 		layout.setWidget(1, 0, inst);
