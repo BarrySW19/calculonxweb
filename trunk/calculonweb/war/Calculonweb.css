@@ -60,6 +60,16 @@ h1 {
 	margin-left: 10px;
 }
 
+.margin20-left {
+	margin-left: 20px;
+	margin-right: 5px;
+}
+
+.underline {
+	text-decoration: underline;
+	margin-bottom: 10px;
+}
+
 /** Set ids using widget.getElement().setId("idOfElement") */
 #closeButton {
   margin: 15px 6px 6px;
