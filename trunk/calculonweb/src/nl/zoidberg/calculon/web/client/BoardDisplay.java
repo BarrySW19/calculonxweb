@@ -150,7 +150,12 @@ public class BoardDisplay extends Grid {
 		int row = flipped ? rank : 7 - rank;
 		int col = file + 1;
 		
-		this.setWidget(row, col, w);
+		Image img = (Image) this.getWidget(row, col);
+		if(img != null) {
+			img.setUrlAndVisibleRect(w.getUrl(), w.getOriginLeft(), w.getOriginTop(), w.getWidth(), w.getHeight());
+		} else {
+			this.setWidget(row, col, w);
+		}
 	}
 	
 	private void setBoardImage(String square, Image w) {
