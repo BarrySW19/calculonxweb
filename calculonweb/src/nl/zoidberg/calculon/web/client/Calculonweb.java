@@ -58,7 +58,6 @@ public class Calculonweb implements EntryPoint {
 				boardInfo = result;
 				boardDisplay.setBoardInfo(result);
 				pgnDisplay.addMove(boardInfo.getLastMove());
-				System.out.println(boardInfo.getLastMove() + " = " + boardInfo.getResult());
 				if("*".equals(boardInfo.getResult())) {
 					boardDisplay.setStyleName("waiting");
 					getComputerResponse();
