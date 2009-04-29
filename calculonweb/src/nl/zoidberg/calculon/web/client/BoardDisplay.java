@@ -74,9 +74,9 @@ public class BoardDisplay extends Grid {
 		
 		ListBox style = new ListBox();
 		style.setStyleName("margin10");
+		style.addItem("Merida Blue", "4");
 		style.addItem("Merida Green", "1");
 		style.addItem("Merida Purple", "2");
-		style.addItem("Merida Blue", "4");
 		style.addItem("Harlequin Brown", "3");
 		style.addItem("Wiki Style 1", "5");
 		setWidget(5, 9, style);
