@@ -6,6 +6,7 @@ import java.util.List;
 import nl.zoidberg.calculon.web.client.images.iyt1.IYT1BoardImageBundle;
 import nl.zoidberg.calculon.web.client.images.iyt2.IYT2BoardImageBundle;
 import nl.zoidberg.calculon.web.client.images.iyt3.IYT3BoardImageBundle;
+import nl.zoidberg.calculon.web.client.images.iyt4.IYT4BoardImageBundle;
 import nl.zoidberg.calculon.web.client.images.wiki1.Wiki1BoardImageBundle;
 
 import com.google.gwt.core.client.GWT;
@@ -24,7 +25,7 @@ public class BoardDisplay extends Grid {
 	private static final String RANKS = "12345678";
 	private static final String FILES = "ABCDEFGH";
 	
-	private BoardImageBundle imageBundle = (BoardImageBundle) GWT.create(IYT1BoardImageBundle.class);
+	private BoardImageBundle imageBundle = (BoardImageBundle) GWT.create(IYT4BoardImageBundle.class);
 	
 	private BoardInfo boardInfo;
 	private String selectedFrom;
@@ -75,8 +76,9 @@ public class BoardDisplay extends Grid {
 		style.setStyleName("margin10");
 		style.addItem("Merida Green", "1");
 		style.addItem("Merida Purple", "2");
+		style.addItem("Merida Blue", "4");
 		style.addItem("Harlequin Brown", "3");
-		style.addItem("Wiki Style 1", "4");
+		style.addItem("Wiki Style 1", "5");
 		setWidget(5, 9, style);
 		style.addChangeHandler(new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
@@ -109,6 +111,9 @@ public class BoardDisplay extends Grid {
 			imageBundle = (BoardImageBundle) GWT.create(IYT3BoardImageBundle.class);
 			break;
 		case 4:
+			imageBundle = (BoardImageBundle) GWT.create(IYT4BoardImageBundle.class);
+			break;
+		case 5:
 			imageBundle = (BoardImageBundle) GWT.create(Wiki1BoardImageBundle.class);
 			break;
 		}
