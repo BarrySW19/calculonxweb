@@ -2,6 +2,7 @@ package nl.zoidberg.calculon.web.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import nl.zoidberg.calculon.web.client.images.iyt1.IYT1BoardImageBundle;
 import nl.zoidberg.calculon.web.client.images.iyt2.IYT2BoardImageBundle;
@@ -191,7 +192,7 @@ public class BoardDisplay extends Grid {
 		this.selectedFrom = square;
 		Image image = getBoardImage(selectedFrom);
 		image.setStyleName("selectedBorder");
-		List<String> targets = boardInfo.getPossibleMoves().get(square);
+		Set<String> targets = boardInfo.getPossibleMoves().get(square);
 		for(String target: targets) {
 			image = (Image) getBoardImage(target);
 			targetHandlers.add(image.addClickHandler(new ToClickHandler(target)));
@@ -206,6 +207,17 @@ public class BoardDisplay extends Grid {
 		int rank = RANKS.indexOf(selectedFrom.charAt(1));
 		Image img = (rank+file)%2 == 1 ? 
 				imageBundle.getEmptyLight().createImage() : imageBundle.getEmptyDark().createImage();
+
+		int targetRank = RANKS.indexOf(target.charAt(1));
+		String movedPiece = String.valueOf(boardInfo.getPieceAt(file, rank));
+		if("p".equalsIgnoreCase(movedPiece)
+					&& (targetRank == 0 || targetRank == 7)) {
+			PromotionDialog pDialog = new PromotionDialog(imageBundle, "p".equals(movedPiece)?1:0, this, target);
+			pDialog.setPopupPosition(this.getAbsoluteLeft() + (img.getWidth()*2),
+						this.getAbsoluteTop() + (img.getHeight()*3));
+			pDialog.show();
+			return;
+		}
 		img = this.setBoardImage(file, rank, img);
 		img.setStyleName("normalBorder");
 		
@@ -213,6 +225,29 @@ public class BoardDisplay extends Grid {
 		img = getPieceImage(piece, (FILES.indexOf(target.charAt(0)) + RANKS.indexOf(target.charAt(1))) % 2);
 		img = this.setBoardImage(target, img);
 		img.setStyleName("normalBorder");
+		
+		controller.moveSelected(selectedFrom + target);
+	}
+	
+	void promotePawn(String target) {
+		int file = FILES.indexOf(selectedFrom.charAt(0));
+		int rank = RANKS.indexOf(selectedFrom.charAt(1));
+
+		Image img = (rank+file)%2 == 1 ? 
+				imageBundle.getEmptyLight().createImage() : imageBundle.getEmptyDark().createImage();
+		img = this.setBoardImage(file, rank, img);
+		img.setStyleName("normalBorder");
+		
+		char piece = boardInfo.getPieceAt(file, rank);
+		char newPiece = target.charAt(target.length()-1);
+		if(Character.isLowerCase(piece)) {
+			newPiece = Character.toLowerCase(newPiece);
+		}
+		img = getPieceImage(newPiece, (FILES.indexOf(target.charAt(0)) + RANKS.indexOf(target.charAt(1))) % 2);
+		img = this.setBoardImage(target, img);
+		img.setStyleName("normalBorder");
+		
+		controller.moveSelected(selectedFrom + target);
 	}
 	
 	private void clearHandlers(List<HandlerRegistration> handlers) {
@@ -269,7 +304,6 @@ public class BoardDisplay extends Grid {
 
 		public void onClick(ClickEvent event) {
 			moveSelectedPiece(toSquare);
-			controller.moveSelected(selectedFrom + toSquare);
 		}
 	}
 	

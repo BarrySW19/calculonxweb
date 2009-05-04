@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings("serial")
 public class BoardInfo implements Serializable {
@@ -11,7 +12,7 @@ public class BoardInfo implements Serializable {
 	private List<String> board;
 	
 	private String currentFEN;
-	private Map<String, List<String>> possibleMoves;
+	private Map<String, Set<String>> possibleMoves;
 	private byte[] squares;
 	private Map<String, Short> history;
 	private short flags;
@@ -97,10 +98,10 @@ public class BoardInfo implements Serializable {
 		}
 	}
 	
-	public Map<String, List<String>> getPossibleMoves() {
+	public Map<String, Set<String>> getPossibleMoves() {
 		return possibleMoves;
 	}
-	public void setPossibleMoves(Map<String, List<String>> possibleMoves) {
+	public void setPossibleMoves(Map<String, Set<String>> possibleMoves) {
 		this.possibleMoves = possibleMoves;
 	}
 }

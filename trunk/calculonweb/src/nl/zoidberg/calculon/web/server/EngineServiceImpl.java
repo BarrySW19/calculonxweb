@@ -1,5 +1,11 @@
 package nl.zoidberg.calculon.web.server;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import nl.zoidberg.calculon.engine.MoveGenerator;
 import nl.zoidberg.calculon.engine.SearchNode;
 import nl.zoidberg.calculon.model.Board;
@@ -18,7 +24,7 @@ public class EngineServiceImpl extends RemoteServiceServlet implements EngineSer
 	
 	public BoardInfo resetGame() {
 		Board board = new Board().initialise();
-//		FENUtils.loadPosition("7k/R7/8/8/8/8/8/1R5K w - - 0 1", board);
+//		FENUtils.loadPosition("7k/8/P7/8/8/8/p7/1R5K b - - 0 1", board);
 		return getBoardInfo(board);
 	}
 
@@ -56,11 +62,27 @@ public class EngineServiceImpl extends RemoteServiceServlet implements EngineSer
 	private static BoardInfo getBoardInfo(Board board) {
 		BoardInfo boardInfo = new BoardInfo();
 		boardInfo.setCurrentFEN(FENUtils.generate(board));
-		boardInfo.setPossibleMoves(MoveGenerator.get().getPossibleMoves(board));
 		boardInfo.setHistory(board.getHistory());
 		boardInfo.setSquares(board.getSquares());
 		boardInfo.setFlags(board.getFlags());
 		boardInfo.setResult(board.getResult());
+		
+		Map<String, List<String>> allMoves = MoveGenerator.get().getPossibleMoves(board);
+		Map<String, Set<String>> possibleMoves = new HashMap<String, Set<String>>();
+		for(String key: allMoves.keySet()) {
+			List<String> moves = allMoves.get(key);
+			Set<String> setMoves = new HashSet<String>();
+			for(String move: moves) {
+				if(move.indexOf('=') >= 0) {
+					setMoves.add(move.substring(0, move.indexOf('=')));
+				} else {
+					setMoves.add(move);
+				}
+			}
+			possibleMoves.put(key, setMoves);
+		}
+		boardInfo.setPossibleMoves(possibleMoves);
+		
 		return boardInfo;
 	}
 }
