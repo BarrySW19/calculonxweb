@@ -154,7 +154,7 @@ public class BoardDisplay extends Grid {
 	 */
 	private Image setBoardImage(int file, int rank, Image w) {
 		int row = flipped ? rank : 7 - rank;
-		int col = file + 1;
+		int col = 1 + (flipped ? 7 - file : file);
 		
 		Image img = (Image) this.getWidget(row, col);
 		if(img != null) {
@@ -175,7 +175,7 @@ public class BoardDisplay extends Grid {
 	}
 	
 	private Image getBoardImage(int file, int rank) {
-		Image image = (Image) this.getWidget(flipped ? rank : 7 - rank, file + 1);
+		Image image = (Image) this.getWidget(flipped ? rank : 7 - rank, (flipped ? 7 - file : file) + 1);
 		return image;
 	}
 	
