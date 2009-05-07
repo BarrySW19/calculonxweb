@@ -19,14 +19,6 @@ public class BoardInfo implements Serializable {
 	private String lastMove;
 	private String result;
 	
-//	public String getStateInfo() {
-//		return stateInfo;
-//	}
-//
-//	public void setStateInfo(String stateInfo) {
-//		this.stateInfo = stateInfo;
-//	}
-
 	public String getLastMove() {
 		return lastMove;
 	}
