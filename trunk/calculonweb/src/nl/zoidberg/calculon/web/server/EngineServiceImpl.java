@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import nl.zoidberg.calculon.engine.Board;
+import nl.zoidberg.calculon.engine.ChessEngine;
 import nl.zoidberg.calculon.engine.MoveGenerator;
-import nl.zoidberg.calculon.engine.SearchNode;
-import nl.zoidberg.calculon.model.Board;
 import nl.zoidberg.calculon.notation.FENUtils;
 import nl.zoidberg.calculon.notation.PGNUtils;
 import nl.zoidberg.calculon.web.client.BoardInfo;
@@ -48,8 +48,8 @@ public class EngineServiceImpl extends RemoteServiceServlet implements EngineSer
 		}
 		
 		Board board = new Board(currentBoard.getSquares(), currentBoard.getFlags(), currentBoard.getHistory());
-		SearchNode node = new SearchNode(board);
-		String move = node.getPreferredMove();
+		ChessEngine node = new ChessEngine();
+		String move = node.getPreferredMove(board);
 		String pgn = PGNUtils.translateMove(board, move);
 		
 		board.applyMove(move);
@@ -67,7 +67,7 @@ public class EngineServiceImpl extends RemoteServiceServlet implements EngineSer
 		boardInfo.setFlags(board.getFlags());
 		boardInfo.setResult(board.getResult());
 		
-		Map<String, List<String>> allMoves = MoveGenerator.get().getPossibleMoves(board);
+		Map<String, List<String>> allMoves = MoveGenerator.getPossibleMoves(board);
 		Map<String, Set<String>> possibleMoves = new HashMap<String, Set<String>>();
 		for(String key: allMoves.keySet()) {
 			List<String> moves = allMoves.get(key);
