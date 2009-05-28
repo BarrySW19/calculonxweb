@@ -49,7 +49,7 @@ public class EngineServiceImpl extends RemoteServiceServlet implements EngineSer
 		
 		Board board = new Board(currentBoard.getSquares(), currentBoard.getFlags(), currentBoard.getHistory());
 		ChessEngine node = new ChessEngine();
-		String move = node.getPreferredMove(board);
+		String move = node.getPreferredMove(board.getBitBoard());
 		String pgn = PGNUtils.translateMove(board, move);
 		
 		board.applyMove(move);
@@ -67,7 +67,7 @@ public class EngineServiceImpl extends RemoteServiceServlet implements EngineSer
 		boardInfo.setFlags(board.getFlags());
 		boardInfo.setResult(board.getResult());
 		
-		Map<String, List<String>> allMoves = MoveGenerator.getPossibleMoves(board);
+		Map<String, List<String>> allMoves = MoveGenerator.getPossibleMoves(board.getBitBoard());
 		Map<String, Set<String>> possibleMoves = new HashMap<String, Set<String>>();
 		for(String key: allMoves.keySet()) {
 			List<String> moves = allMoves.get(key);
